@@ -1,0 +1,268 @@
+---
+sidebar_position: 2
+---
+
+# class 를 이용한 UI 설계
+
+## 시안
+
+아래와 같은 시안을 구현해야 한다고 가정합니다.
+
+<img src="/img/hero-example.jpg" alt="이미지 시안"/>
+
+## Anti-pattern: HTML 종속적인 CSS 작성
+
+### HTML 종속적인 CSS 설계 예시
+
+HTML 종속적으로 코드를 작성하면 아래와 비슷할 겁니다.
+
+[Codepen에서 보기](https://codepen.io/jayjnu/pen/vYvevRJ)
+
+```css
+
+
+/* reset-start */
+* {margin:0;padding:0;}
+button {border: none}
+/* reset-end */
+
+/* page-start */
+h1 a {text-decoration: none; color: #fff;}
+header {
+  box-sizing: border-box;
+  position: fixed;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 15px 0;
+}
+header h1 {}
+header button {
+  text-decoration: none;
+  color: #fff;
+  background-color: #058ED9;
+  padding: 5px 10px;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 2px;
+}
+
+#hero {
+  text-align: center;
+  background: no-repeat center url(https://picsum.photos/id/91/3504/2336);
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#hero > div > h2 {
+  color: #fff;
+  font-size: 65px;
+}
+#hero > div > button {
+  text-decoration: none;
+  color: #fff;
+  background-color: magenta;
+  padding: 5px 10px;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 2px;
+}
+
+#footer {
+  background-color: #333;
+  text-align: center;
+  padding: 50px 0;
+}
+#footer a {
+  font-size: 16px;
+  text-decoration: none;
+  color: #fff;
+}
+/*page-end*/
+```
+
+```html
+<header>
+  <h1>
+    <a href="#">Codeit</a>
+  </h1>
+  <button type="button">
+    Sign Up
+  </button>
+</header>
+<div id="hero">
+  <div>
+    <h2>
+      Make Your Dream Come True
+    </h2>
+    <button type="button">
+      Getting Started
+    </button>
+  </div>
+</div>
+<footer id="footer">
+  <a href="#">
+    Codeit
+  </a>
+</footer>
+```
+
+### BREAKING 시나리오 
+
+한번 만들고 치워버릴 코드라면 상관없지만, 우리는 언제나 운영을 생각해야 합니다. 나중에 기능을 추가되거나 수정해야 할 때, 아래의 문제점이 발생하지 않을까요?
+
+1. HTML 구조만 보고 각 요소가 화면에서 어떤 역할을 하는지 유추가 가능할까?
+2. `#hero > div > button` 을 header 로 그대로 복붙했을때 레이아웃이 깨지지 않고 스타일이 유지 될까?
+3. html상 `#hero` 하위에 새로운 div가 생기면? `#hero > div` 가 의도한대로 작동할까?
+
+HTML 종속적인 코드는 **약간의 변경에도 취약해집니다**.
+
+1. 스타일과 관련없이 마크업이 추가되는 경우 (ex. 백단에서 임의의 요소를 넣거나 js개발상 필요에 의해 요소를 추가) 화면이 바로 깨져버립니다. (css selector가 html 구조에 영향 받으므로)
+2. 동일한 스타일인데, 다른 태그를 사용해야 하는 경우에 대응할 수 없습니다. 시안의 Getting Started 버튼은 헤더의 Sign Up 버튼과 거의 동일한 스타일을 가지고 있지만, 서로 위치를 바꿀수도 없고 스타일도 중복해서 가지고 있습니다.
+
+
+## class 를 이용한 설계 (feat. BEM)
+
+class를 이용하여 UI를 설계하면 마크업 구조가 아닌, UI의 개념적인 구조에 따라 코드를 작성할 수 있습니다. 
+
+[Codepen에서 보기](https://codepen.io/jayjnu/pen/NWeaorZ)
+
+```css
+/* reset-start */
+* {margin:0;padding:0;}
+/* reset-end */
+
+/* components-start */
+.logo {
+  font-size: inherit;
+}
+.logo--big {
+  font-size: 32px;
+}
+.logo--small {
+  font-size: 16px;
+}
+.logo--medium {
+  font-size: 24px;
+}
+.logo__text {
+  text-decoration: none;
+  color: #fff;
+}
+
+.button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+  text-decoration: none;
+  padding: 5px 10px;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  box-sizing: border-box;
+  height: 40px;
+  line-height: 30px;
+}
+
+.button--primary {
+  color: #fff;
+  background-color: #058ED9;
+}
+.button--secondary {
+  color: #fff;
+  background-color: magenta;
+}
+.button--round {
+  border-radius: 2px;
+}
+/* components-end */
+
+/* page-start */
+.header {
+  box-sizing: border-box;
+  position: fixed;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 15px 0;
+}
+
+.hero {
+  text-align: center;
+  background: no-repeat center url(https://picsum.photos/id/91/3504/2336);
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero__title {
+  color: #fff;
+  font-size: 65px;
+}
+
+.footer {
+  background-color: #333;
+  text-align: center;
+  padding: 50px 0;
+}
+/*page-end*/
+```
+
+```html
+<header class="header">
+  <h1 class="logo--big">
+    <a href="#" class="logo__text">Codeit</a>
+  </h1>
+  <a href="/signup" class="button button--primary button--round">
+    Sign Up
+  </a>
+</header>
+<div class="hero">
+  <div class="hero__content">
+    <h2 class="hero__title">
+      Make Your Dream Come True
+    </h2>
+    <button type="button" class="button button--secondary button--round">
+      Getting Started
+    </button>
+  </div>
+</div>
+<footer class="footer">
+  <a href="#" class="logo--small logo__text">
+    Codeit
+  </a>
+</footer>
+```
+
+### `component` 개념의 추가
+
+css에 `component` 라는 개념이 하나 추가되었습니다. `component` 는 재사용 가능한 UI를 개념적으로 쪼갠 것이고, `component.css` 로 분리하여 페이지 전체에서 재활용 될 수 있습니다.
+
+codeit logo는 header, footer에서 모두 재사용하고 있고, 마크업 구조가 다르지만 스타일에 문제가 없습니다.
+또한 button, a태그도 동일한 ui로 사용이 가능합니다.
+
+
+### `id` 제거
+
+id 가 존재하지 않아도 스타일에 전혀 문제가 없습니다. 각 ui의 바운더리는 `block` 명으로 scoping 했기 때문에 마크업 구조만 봐도 어떤 ui를 표현하는지 쉽게 알 수 있습니다.
+
+### 마크업 구조나 tag를 변경하더라도 스타일은 유지됩니다.
+
+button, a 태그를 서로 교체하더라도 동일한 class 정의를 가지고 있기 때문에 스타일을 추가로 정의할 필요가 없습니다.
+
+### 페이지용 스타일 정의 코드량 감소
+
+`component.css`가 생기면서 당장 전체적인 코드량은 늘었지만 해당 페이지의 스타일은 오히려 줄었습니다.
+이는 페이지갯수가 늘어나면 늘어날수록 전체적인 코드량이 감소함을 의미합니다.
+
+
+
+## 결론
+
+ui를 재사용 가능한 단위로 잘 나눈 뒤, class를 이용하여 스타일을 잘 추상화 해두면 마크업 변경에도 면역이 되고, 여러 영역에서 다양하게 재사용할 수 있습니다.
+최대한 마크업 구조, 태그명이 그대로 드러나는 css selector 사용은 지양하고, 시안을 잘 분석해서 공통적인 요소들은 component화 할 수 있도록 설계가 필요합니다.
